@@ -1,0 +1,29 @@
+# Deterministic CI — this IS part of the agent harness.
+# The triage agent reads this workflow's failed logs; the checks here are the
+# "Check" step of the agent loop (Observe -> Plan -> Act -> Check -> Report).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Test
+        run: npm test
