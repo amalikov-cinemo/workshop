@@ -1,8 +1,8 @@
-diff --git a/packages/invoice-service/src/invoice.ts b/packages/invoice-service/src/invoice.ts
-index 1a6bc8c..1fac893 100644
---- a/packages/invoice-service/src/invoice.ts
-+++ b/packages/invoice-service/src/invoice.ts
-@@ -73,7 +73,7 @@ export function formatInvoiceSummary(invoice: Invoice): string {
+diff --git a/packages/invoice-service/src/format.ts b/packages/invoice-service/src/format.ts
+index ad954a2..322ed08 100644
+--- a/packages/invoice-service/src/format.ts
++++ b/packages/invoice-service/src/format.ts
+@@ -16,7 +16,7 @@ export function formatInvoiceSummary(invoice: Invoice): string {
        `  ${item.quantity} x ${item.description} @ €${formatCents(item.unitPriceCents)}`,
    );
    return [

@@ -1,7 +1,7 @@
-diff --git a/packages/invoice-service/src/invoice.ts b/packages/invoice-service/src/invoice.ts
-index 1a6bc8c..e9b1f08 100644
---- a/packages/invoice-service/src/invoice.ts
-+++ b/packages/invoice-service/src/invoice.ts
+diff --git a/packages/invoice-service/src/billing.ts b/packages/invoice-service/src/billing.ts
+index 8a8feab..11ae550 100644
+--- a/packages/invoice-service/src/billing.ts
++++ b/packages/invoice-service/src/billing.ts
 @@ -8,7 +8,7 @@
   */
  
