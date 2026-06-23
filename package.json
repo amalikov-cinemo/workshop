@@ -1,0 +1,18 @@
+{
+  "name": "agentic-sdlc-workshop",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Workshop: Building Agentic AI SDLC Pipelines — invoice-service harness + CI-triage agent driven by the local Claude Code CLI",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  },
+  "license": "MIT"
+}
