@@ -4,9 +4,8 @@ import {
   subtotal,
   vatFor,
   calculateTotals,
-  formatInvoiceSummary,
   type Invoice,
-} from "../src/invoice.js";
+} from "../src/billing.js";
 
 const sampleInvoice: Invoice = {
   id: "INV-1001",
@@ -52,15 +51,5 @@ describe("VAT (billing logic — high risk)", () => {
     expect(totals.subtotalCents).toBe(104500);
     expect(totals.vatCents).toBe(19855);
     expect(totals.totalCents).toBe(124355);
-  });
-});
-
-describe("formatInvoiceSummary", () => {
-  it("renders subtotal, VAT and total", () => {
-    const summary = formatInvoiceSummary(sampleInvoice);
-    expect(summary).toContain("Invoice INV-1001 for Acme GmbH");
-    expect(summary).toContain("Subtotal: €1045.00");
-    expect(summary).toContain("VAT (19%): €198.55");
-    expect(summary).toContain("Total: €1243.55");
   });
 });

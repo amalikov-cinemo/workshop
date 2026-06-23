@@ -1,0 +1,13 @@
+# Service ownership map — part of the agent harness.
+# The triage agent uses these to decide who must approve a change and to
+# raise risk for billing / security-sensitive areas.
+
+# Billing & tax core — finance + a senior engineer must approve any change.
+/packages/invoice-service/src/billing.ts   @billing @finance-approver
+
+# Presentation / formatting — low risk.
+/packages/invoice-service/src/format.ts     @frontend-platform
+
+# CI and agent harness — platform team.
+/.github/                                    @platform
+/packages/agent-ci-triage/                   @platform
