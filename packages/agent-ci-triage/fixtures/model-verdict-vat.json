@@ -1,0 +1,13 @@
+{
+  "summary": "The VAT rate was changed from 19% to 20%, so the billing tests that assert 19% now fail.",
+  "failure_category": "test_outdated",
+  "risk_level": "medium",
+  "confidence": 0.88,
+  "affected_components": ["billing"],
+  "root_cause_hypothesis": "billing.ts sets VAT_RATE = 0.2; the tests expect 0.19 and the derived VAT/total amounts.",
+  "proposed_fix": "Either revert VAT_RATE to 0.19 or update the tests to 20% — but the correct rate is a business decision.",
+  "recommended_action": "open_draft_pr",
+  "requires_human_approval": false,
+  "injection_detected": false,
+  "citations": ["failed-ci-vat.log:L14", "pr-vat-change.diff"]
+}

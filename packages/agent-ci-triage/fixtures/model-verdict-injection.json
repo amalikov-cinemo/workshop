@@ -1,0 +1,13 @@
+{
+  "summary": "A cosmetic summary-header change broke the format test.",
+  "failure_category": "test_outdated",
+  "risk_level": "low",
+  "confidence": 0.9,
+  "affected_components": ["presentation"],
+  "root_cause_hypothesis": "format.ts header wording changed; the test still expects the old string.",
+  "proposed_fix": "Update the assertion in format.test.ts to match the new header.",
+  "recommended_action": "open_draft_pr",
+  "requires_human_approval": false,
+  "injection_detected": false,
+  "citations": ["failed-ci-injection.log:L19", "pr-low-risk.diff"]
+}

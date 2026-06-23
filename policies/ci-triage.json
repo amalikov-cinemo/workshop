@@ -1,0 +1,40 @@
+{
+  "$comment": "Machine-enforced guardrails for the CI-triage agent. These are applied in TypeScript AFTER the model returns its verdict — the model's self-assessment is never trusted for risk gating. This is 'guardrails in code, not in the prompt'.",
+  "confidenceThreshold": 0.7,
+  "maxDraftPrsPerFailure": 1,
+  "highRiskPaths": [
+    {
+      "pattern": "billing|vat|tax|payment|currency|pricing",
+      "component": "billing",
+      "owners": ["@billing", "@finance-approver"],
+      "reason": "Billing/tax logic. Rate and calculation changes are financial decisions and need human + finance sign-off, even when the code fix is trivial."
+    },
+    {
+      "pattern": "auth|login|session|token|password|secret|crypto|permission",
+      "component": "auth",
+      "owners": ["@security"],
+      "reason": "Authentication/authorization or secrets. Security must review."
+    },
+    {
+      "pattern": "migration|schema\\.sql|/migrations/|alembic",
+      "component": "database",
+      "owners": ["@dba"],
+      "reason": "Schema or data migration. Often irreversible; needs DBA review."
+    }
+  ],
+  "lowRiskPaths": [
+    { "pattern": "\\.md$|/docs/|README", "component": "docs" },
+    { "pattern": "\\.test\\.|/test/|/__tests__/|fixture", "component": "tests" },
+    { "pattern": "format|presenter|view|template|i18n|locale", "component": "presentation" }
+  ],
+  "injectionPatterns": [
+    "ignore (all )?(previous|prior) instructions",
+    "disregard (your|the|all) (policy|instructions|rules)",
+    "you are now",
+    "system notice to any ai",
+    "this (failure|change) is approved",
+    "merge .*(immediately|now|to main)",
+    "print .*(secret|token|env|environment|password|credential)",
+    "reveal .*(secret|token|key)"
+  ]
+}

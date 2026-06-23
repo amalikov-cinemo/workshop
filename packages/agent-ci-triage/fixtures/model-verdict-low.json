@@ -1,0 +1,13 @@
+{
+  "summary": "A cosmetic change to the invoice summary header broke the format test that still expects the old wording.",
+  "failure_category": "test_outdated",
+  "risk_level": "low",
+  "confidence": 0.92,
+  "affected_components": ["presentation"],
+  "root_cause_hypothesis": "format.ts now renders 'Invoice #INV-1001 — Acme GmbH' but the test asserts the old 'Invoice INV-1001 for Acme GmbH' string.",
+  "proposed_fix": "Update the assertion in format.test.ts to match the new header wording.",
+  "recommended_action": "open_draft_pr",
+  "requires_human_approval": false,
+  "injection_detected": false,
+  "citations": ["failed-ci-low.log:L17", "pr-low-risk.diff"]
+}
