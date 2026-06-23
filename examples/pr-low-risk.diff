@@ -1,0 +1,13 @@
+diff --git a/packages/invoice-service/src/invoice.ts b/packages/invoice-service/src/invoice.ts
+index 1a6bc8c..1fac893 100644
+--- a/packages/invoice-service/src/invoice.ts
++++ b/packages/invoice-service/src/invoice.ts
+@@ -73,7 +73,7 @@ export function formatInvoiceSummary(invoice: Invoice): string {
+       `  ${item.quantity} x ${item.description} @ €${formatCents(item.unitPriceCents)}`,
+   );
+   return [
+-    `Invoice ${invoice.id} for ${invoice.customer}`,
++    `Invoice #${invoice.id} — ${invoice.customer}`,
+     ...lines,
+     `Subtotal: €${formatCents(totals.subtotalCents)}`,
+     `VAT (${Math.round(totals.vatRate * 100)}%): €${formatCents(totals.vatCents)}`,
