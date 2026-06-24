@@ -55,8 +55,41 @@ Two prepared pull requests both make CI fail, but they are **not** the same risk
 The contrast between these two PRs is the entire lesson: *AI prepares, humans own
 billing/security/privacy risk.*
 
-## Status
+## Run the demo
 
-This repo is built incrementally during preparation. Current step: harness
-(`invoice-service`) + CI + the two failing PRs. The triage agent, GitHub Action,
-slides and handouts follow.
+```bash
+./scripts/demo.sh          # offline (recorded verdicts — no Claude Code needed)
+./scripts/demo.sh --live   # real claude -p, using your installed Claude Code
+```
+
+Three scenarios, one agent, one policy — the **outcome** differs because of
+**what** each PR changes:
+
+| Scenario | Touches | Verdict | Exit |
+| --- | --- | --- | --- |
+| Summary formatting | `format.ts` | 🟢 LOW → draft PR | 10 |
+| VAT 19% → 20% | `billing.ts` | 🔴 HIGH → escalate | 20 |
+| Prompt injection in the log | — | caught, report-only | 0 |
+
+See `packages/agent-ci-triage/README.md` for the agent, and `slides/` +
+`handouts/` for the workshop material.
+
+## What's in here
+
+| Path | What |
+| --- | --- |
+| `packages/invoice-service` | Toy billing service (the harness under test) |
+| `packages/agent-ci-triage` | The CI-triage agent (wraps `claude -p`) + golden eval |
+| `examples/` | Recorded diffs, CI logs (incl. injection), for offline demo |
+| `policies/` | Agent policy: human narrative (`.md`) + enforced rules (`.json`) |
+| `.github/workflows/` | Real CI + the `AI CI Triage` trigger |
+| `.github/CODEOWNERS` | Service ownership map (drives risk) |
+| `slides/` | Marp deck (~49 slides, EN) |
+| `handouts/` | Design template, matrices, challenge questions, golden rules |
+| `scripts/demo.sh` | One-step demo runner |
+
+## Verify
+
+```bash
+npm install && npm run build && npm test    # 19 tests: invoice-service + agent eval
+```
