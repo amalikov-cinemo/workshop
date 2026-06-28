@@ -1,0 +1,66 @@
+# Demonstration of the triage agent running IN CI — offline, no secret, no model.
+#
+# This is the "trigger" from the talk, made visible: it runs the same agent on
+# the pre-broken PRs from the lab, in REPLAY mode (recorded model verdicts), and
+# writes each report to the GitHub job summary. The *gate* (policy.ts) runs for
+# real; only the model's opinion is canned, so it's deterministic and free.
+#
+# The real, model-driven version is agent-triage.yml (needs CLAUDE_CODE_OAUTH_TOKEN).
+name: AI Triage Demo (offline)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+
+      - name: Triage the pre-broken PRs (offline replay)
+        run: |
+          A=packages/agent-ci-triage
+          {
+            echo "# 🤖 AI CI Triage — demo (offline replay)"
+            echo
+            echo "Same agent, same policy, three pre-broken PRs. No model was called —"
+            echo "the model's verdict is a recorded fixture; the **gate runs for real**."
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          triage () {
+            local title="$1" diff="$2" log="$3" replay="$4" out="out-$5"
+            node "$A/dist/cli.js" --diff "examples/$diff" --ci-log "examples/$log" \
+              --mode fix --replay "$A/fixtures/$replay" --out "$out" >/dev/null 2>&1 || true
+            {
+              echo "## $title"
+              echo
+              cat "$out/report.md"
+              echo
+              echo "**Gate decision:** \`$(jq -r '"risk="+.final_risk_level+"  action="+.final_action+"  approvers="+((.required_approvers // [])|join(",")|select(.!="") // "-")' "$out/verdict.json")\`"
+              echo
+              echo "---"
+              echo
+            } >> "$GITHUB_STEP_SUMMARY"
+          }
+
+          triage "PR #1 · Summary formatting"      pr-low-risk.diff           failed-ci-low.log        model-verdict-low.json        low
+          triage "PR #2 · VAT 19% → 20% (billing)" pr-vat-change.diff         failed-ci-vat.log        model-verdict-vat.json        vat
+          triage "PR #3 · Export personal data"    pr-export-personal-data.diff failed-ci-export.log    model-verdict-export.json     export
+
+          {
+            echo "> Read it top to bottom: the model rated each one **low**, but the gate"
+            echo "> escalated billing and the PII export to humans and let only the cosmetic"
+            echo "> change through. The model proposes — the gate decides."
+          } >> "$GITHUB_STEP_SUMMARY"

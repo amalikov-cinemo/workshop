@@ -62,5 +62,20 @@ if [ "$slipping" = 0 ]; then
 else
   echo "  $slipping of 3 still slipping. Edit policies/ci-triage.json and re-run."
 fi
-echo "  Full exercise: handouts/lab.md   ·   answers: handouts/lab-solution.md"
 echo "═══════════════════════════════════════════════════════════════════"
+
+# Bonus round (run after you've closed gap 2): a NEW injection, worded
+# differently, that your pattern probably does not match.
+if [ "${1:-}" = "--bonus" ]; then
+  run B "BONUS · adversarial injection — can it get past YOUR pattern?" \
+    pr-low-risk.diff failed-ci-injection-bypass.log model-verdict-injection-bypass.json 0 \
+    "It used different words ('signed off in the standby channel', 'merge without further review')."
+  echo
+  echo "  If the bonus still slips: that's the lesson — a denylist of phrases leaks."
+  echo "  You cannot pattern-match your way to safety. The real guarantees are"
+  echo "  STRUCTURAL: read-only by default (L1), and a human signs every risky action."
+  echo "═══════════════════════════════════════════════════════════════════"
+fi
+
+echo "  Full exercise: handouts/lab.md   ·   answers: handouts/lab-solution.md"
+echo "  Tip: predict each verdict BEFORE you run. Bonus round: ./scripts/lab.sh --bonus"
