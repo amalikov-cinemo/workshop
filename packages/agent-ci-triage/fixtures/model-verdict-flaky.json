@@ -1,0 +1,13 @@
+{
+  "summary": "CI failed on what looks like a flaky e2e timeout, unrelated to the formatting change in this PR.",
+  "failure_category": "flaky",
+  "risk_level": "low",
+  "confidence": 0.72,
+  "affected_components": ["presentation"],
+  "root_cause_hypothesis": "An e2e test timed out at 5000ms; likely a flaky/environment issue rather than the diff.",
+  "proposed_fix": "Re-run CI; if it persists, raise the timeout or quarantine the flaky test.",
+  "recommended_action": "open_draft_pr",
+  "requires_human_approval": false,
+  "injection_detected": false,
+  "citations": ["failed-ci-flaky.log", "pr-low-risk.diff"]
+}

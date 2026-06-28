@@ -71,8 +71,33 @@ Three scenarios, one agent, one policy — the **outcome** differs because of
 | VAT 19% → 20% | `billing.ts` | 🔴 HIGH → escalate | 20 |
 | Prompt injection in the log | — | caught, report-only | 0 |
 
-See `packages/agent-ci-triage/README.md` for the agent, and `slides/` +
-`handouts/` for the workshop material.
+See `packages/agent-ci-triage/README.md` for the agent, and `handouts/` for the
+workshop material — start with `handouts/lab.md`.
+
+## Hands-on lab
+
+```bash
+./scripts/lab.sh           # run the lab scenarios (offline)
+```
+
+`lab.sh` shows where the shipped policy lets a risky change slip through; you
+close the gap by editing `policies/ci-triage.json`. Full walkthrough (builders +
+designers tracks) in `handouts/lab.md`; answers in `handouts/lab-solution.md`.
+
+## Enabling the AI CI Triage trigger (optional)
+
+`.github/workflows/agent-triage.yml` runs the agent automatically when **CI
+fails on a pull request** and posts a triage comment. It stays off until you
+give it Claude Code auth — by design, no keys are shipped:
+
+1. Create a long-lived token locally: `claude setup-token`.
+2. Add it as a repo secret `CLAUDE_CODE_OAUTH_TOKEN`
+   (Settings → Secrets and variables → Actions).
+3. Open a PR that fails CI (e.g. the VAT change) and watch the agent comment.
+
+Without the secret the workflow just **skips** on green runs and no-ops on red
+ones — that's expected, not a failure. The lab itself runs fully offline and
+needs none of this.
 
 ## What's in here
 
@@ -84,9 +109,9 @@ See `packages/agent-ci-triage/README.md` for the agent, and `slides/` +
 | `policies/` | Agent policy: human narrative (`.md`) + enforced rules (`.json`) |
 | `.github/workflows/` | Real CI + the `AI CI Triage` trigger |
 | `.github/CODEOWNERS` | Service ownership map (drives risk) |
-| `slides/` | Marp deck (~49 slides, EN) |
-| `handouts/` | Design template, matrices, challenge questions, golden rules |
-| `scripts/demo.sh` | One-step demo runner |
+| `handouts/` | Lab guide, design template, matrices, challenge questions, golden rules |
+| `scripts/demo.sh` | Instructor demo (3 scenarios) |
+| `scripts/lab.sh` | Hands-on lab runner (the gaps you close) |
 
 ## Verify
 

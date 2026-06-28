@@ -1,46 +1,66 @@
 #!/usr/bin/env bash
 # Hands-on lab runner (BUILDERS track).
 #
-# Runs the CI-triage agent on the "export personal data" scenario in OFFLINE
-# replay mode — no Claude Code, no network, no API key needed.
+# Runs the CI-triage agent on THREE scenarios in OFFLINE replay mode — no Claude
+# Code, no network, no API key needed. With the SHIPPED policy all three slip
+# through as a draft PR (exit 10). Your job: close each gap by editing ONE file,
+# policies/ci-triage.json, until each scenario reaches its safe target.
 #
-# The point of the exercise: with the SHIPPED policy this PR slips through as a
-# draft-PR (exit 10) — the agent would happily auto-draft a change that exports
-# customer email + billing address. Your job is to add ONE guardrail to
-# policies/ci-triage.json so the harness escalates it instead (exit 20).
+#   ./scripts/lab.sh        # run all three (run it before AND after each edit)
 #
-#   ./scripts/lab.sh        # run the scenario (run it before AND after your edit)
+# Targets after you close the gaps:
+#   1. Personal-data export   -> EXIT 20 (escalate)        add a highRiskPaths rule
+#   2. Prompt injection        -> EXIT 0  (report-only)     add an injectionPatterns entry
+#   3. Low-confidence flaky fix -> EXIT 0 (comment-only)    raise confidenceThreshold
 #
 # Exit codes:  0 = report-only   10 = draft-PR eligible   20 = escalate
-set -euo pipefail
+set -uo pipefail
 cd "$(dirname "$0")/.."
 
 A=packages/agent-ci-triage
 [ -f "$A/dist/cli.js" ] || { echo "Building..."; npm run build >/dev/null; }
 
-echo "═══════════════════════════════════════════════════════════════════"
-echo "  LAB · export personal data — should this auto-draft, or escalate?"
-echo "═══════════════════════════════════════════════════════════════════"
+slipping=0
 
-set +e
-node "$A/dist/cli.js" \
-  --diff examples/pr-export-personal-data.diff \
-  --ci-log examples/failed-ci-export.log \
-  --mode fix \
-  --replay "$A/fixtures/model-verdict-export.json"
-code=$?
-set -e
+run () {
+  local n="$1" title="$2" diff="$3" log="$4" replay="$5" target="$6" hint="$7"
+  echo
+  echo "═══════════════════════════════════════════════════════════════════"
+  echo "  ${n}) ${title}"
+  echo "═══════════════════════════════════════════════════════════════════"
+  node "$A/dist/cli.js" --diff "examples/$diff" --ci-log "examples/$log" \
+    --mode fix --replay "$A/fixtures/$replay"
+  local code=$?
+  echo
+  if [ "$code" = "$target" ]; then
+    echo "✅ EXIT $code — target reached. Gap closed."
+  elif [ "$code" = "10" ]; then
+    echo "➡  EXIT 10 — DRAFT PR ELIGIBLE (slipping). $hint"
+    slipping=$((slipping + 1))
+  else
+    echo "ℹ  EXIT $code (target was $target). $hint"
+    slipping=$((slipping + 1))
+  fi
+}
+
+run 1 "Personal-data export — escalate, don't auto-draft" \
+  pr-export-personal-data.diff failed-ci-export.log model-verdict-export.json 20 \
+  "Add a highRiskPaths rule for personal data (-> EXIT 20)."
+
+run 2 "Prompt injection in the log — catch it, report only" \
+  pr-low-risk.diff failed-ci-injection2.log model-verdict-injection2.json 0 \
+  "Add the injection phrase to injectionPatterns (-> EXIT 0)."
+
+run 3 "Low-confidence flaky fix — hold for a human" \
+  pr-low-risk.diff failed-ci-flaky.log model-verdict-flaky.json 0 \
+  "Raise confidenceThreshold above 0.72 (-> EXIT 0)."
 
 echo
-case "$code" in
-  10) echo "➡  EXIT 10 — DRAFT PR ELIGIBLE. The agent would auto-draft a PII export."
-      echo "   The model rated it low and the harness did NOT stop it. Close the gap:"
-      echo "   add a high-risk path rule for personal data in policies/ci-triage.json,"
-      echo "   then run ./scripts/lab.sh again." ;;
-  20) echo "✅ EXIT 20 — ESCALATED. Your guardrail caught it: the harness overrode the"
-      echo "   model and routed it to a human owner. That's defense-in-depth working." ;;
-  0)  echo "ℹ  EXIT 0 — report-only." ;;
-  *)  echo "Unexpected exit code: $code" ;;
-esac
-echo
-echo "See handouts/lab.md for the full exercise, and handouts/lab-solution.md to check yourself."
+echo "═══════════════════════════════════════════════════════════════════"
+if [ "$slipping" = 0 ]; then
+  echo "  🎉 All three gaps closed. The harness now overrides the model on every one."
+else
+  echo "  $slipping of 3 still slipping. Edit policies/ci-triage.json and re-run."
+fi
+echo "  Full exercise: handouts/lab.md   ·   answers: handouts/lab-solution.md"
+echo "═══════════════════════════════════════════════════════════════════"
