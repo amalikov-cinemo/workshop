@@ -16,7 +16,7 @@ export function formatInvoiceSummary(invoice: Invoice): string {
       `  ${item.quantity} x ${item.description} @ €${formatCents(item.unitPriceCents)}`,
   );
   return [
-    `Invoice ${invoice.id} for ${invoice.customer}`,
+    `Invoice #${invoice.id} — ${invoice.customer}`,
     ...lines,
     `Subtotal: €${formatCents(totals.subtotalCents)}`,
     `VAT (${Math.round(totals.vatRate * 100)}%): €${formatCents(totals.vatCents)}`,
