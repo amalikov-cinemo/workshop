@@ -1,0 +1,51 @@
+##[group]Run npm ci && npm run build && npm test
+Branch: pr/summary-format-label  Commit: c4f2801
+Runner: ubuntu-latest  Node: v22.17.0
+##[endgroup]
+> agentic-sdlc-workshop@0.1.0 build
+> tsc -p tsconfig.json
+
+> invoice-service@0.1.0 test
+> vitest run
+
+
+ RUN  v2.1.9 /home/runner/work/agentic-sdlc-workshop/agentic-sdlc-workshop/packages/invoice-service
+
+ ✓ test/billing.test.ts (7 tests) 2ms
+ ❯ test/format.test.ts (1 test | 1 failed) 5ms
+   × formatInvoiceSummary > renders subtotal, VAT and total 4ms
+     → expected 'Invoice #INV-1001 — Acme GmbH\n  2 x …' to contain 'Invoice INV-1001 for Acme GmbH'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  test/format.test.ts > formatInvoiceSummary > renders subtotal, VAT and total
+AssertionError: expected 'Invoice #INV-1001 — Acme GmbH\n  2 x …' to contain 'Invoice INV-1001 for Acme GmbH'
+
+- Expected
++ Received
+
+- Invoice INV-1001 for Acme GmbH
++ Invoice #INV-1001 — Acme GmbH
++   2 x Workshop seat @ €500.00
++   3 x Handout pack @ €15.00
++ Subtotal: €1045.00
++ VAT (19%): €198.55
++ Total: €1243.55
+
+ ❯ test/format.test.ts:17:21
+     15|   it("renders subtotal, VAT and total", () => {
+     16|     const summary = formatInvoiceSummary(sampleInvoice);
+     17|     expect(summary).toContain("Invoice INV-1001 for Acme GmbH");
+       |                     ^
+     18|     expect(summary).toContain("Subtotal: €1045.00");
+     19|     expect(summary).toContain("VAT (19%): €198.55");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 7 passed (8)
+   Start at  10:40:21
+   Duration  194ms (transform 49ms, setup 0ms, collect 54ms, tests 7ms, environment 0ms, prepare 75ms)
+
+
+##[error]Process completed with exit code 1.

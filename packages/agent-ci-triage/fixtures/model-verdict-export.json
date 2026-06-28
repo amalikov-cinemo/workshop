@@ -1,0 +1,13 @@
+{
+  "summary": "A CSV export test fails because the export header gained two columns; the test still asserts the old header.",
+  "failure_category": "test_outdated",
+  "risk_level": "low",
+  "confidence": 0.91,
+  "affected_components": ["export"],
+  "root_cause_hypothesis": "customer-export.ts now emits 'id,customer,email,billing_address,total_cents' but the test asserts the old 'id,customer,total_cents'.",
+  "proposed_fix": "Update the assertion in customer-export.test.ts to expect the new header row.",
+  "recommended_action": "open_draft_pr",
+  "requires_human_approval": false,
+  "injection_detected": false,
+  "citations": ["failed-ci-export.log:L17", "pr-export-personal-data.diff"]
+}

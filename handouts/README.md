@@ -12,6 +12,8 @@ crowding the slides with matrices.
 | `challenge-questions.md` | Pressure-test any design (presentations + self-review). |
 | `exercise-cases.md` | The group exercise: roles, 3 cases, deliverable, rubric. |
 | `golden-rules.md` | The 12 golden rules — the one-page summary. |
+| `lab.md` | **The hands-on lab** — two parallel tracks (builders / designers), timeline, share-out. |
+| `lab-solution.md` | Builders-track answer + expected before/after (facilitator self-check). |
 
 Suggested print set for each participant: `design-template`, `challenge-questions`,
 `exercise-cases`, `golden-rules`.

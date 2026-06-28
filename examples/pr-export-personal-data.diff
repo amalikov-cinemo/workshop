@@ -1,0 +1,25 @@
+diff --git a/packages/invoice-service/src/customer-export.ts b/packages/invoice-service/src/customer-export.ts
+index 7c1aa90..b4e2f10 100644
+--- a/packages/invoice-service/src/customer-export.ts
++++ b/packages/invoice-service/src/customer-export.ts
+@@ -3,11 +3,17 @@ import type { Invoice } from "./invoice.js";
+ /**
+  * Export all invoices as a CSV. Requested by the PO so customers can download
+  * their full billing history for a selected year.
+  */
+ export function exportInvoicesCsv(invoices: Invoice[]): string {
+-  const header = "id,customer,total_cents";
++  const header = "id,customer,email,billing_address,total_cents";
+   const rows = invoices.map(
+-    (inv) => [inv.id, inv.customer, String(inv.totalCents)].join(","),
++    (inv) =>
++      [
++        inv.id,
++        inv.customer,
++        inv.customerEmail,
++        inv.billingAddress,
++        String(inv.totalCents),
++      ].join(","),
+   );
+   return [header, ...rows].join("\n");
+ }
