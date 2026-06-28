@@ -8,7 +8,7 @@
  */
 
 /** German standard VAT rate. Changing this is a billing decision, not a code fix. */
-export const VAT_RATE = 0.19;
+export const VAT_RATE = 0.2;
 
 export interface LineItem {
   description: string;
