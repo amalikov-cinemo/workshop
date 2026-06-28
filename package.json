@@ -14,5 +14,8 @@
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },
+  "devDependencies": {
+    "@types/node": "^22.0.0"
+  },
   "license": "MIT"
 }
