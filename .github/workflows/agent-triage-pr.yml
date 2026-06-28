@@ -1,0 +1,90 @@
+# PR-triggered triage demo — OFFLINE, no secret. For the two prepared demo PRs
+# it runs the agent on the PR's real diff with a RECORDED model verdict (replay)
+# and posts the gate's decision as a comment, labelling escalations. The gate
+# (policy.ts) runs for real; only the model's opinion is canned.
+#
+# The live, model-driven version is agent-triage.yml (needs CLAUDE_CODE_OAUTH_TOKEN).
+name: AI CI Triage (PR demo, offline)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  triage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run build
+
+      - name: Pick scenario by branch
+        id: scn
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          case "$HEAD_REF" in
+            demo/summary-format)
+              echo "log=failed-ci-low.log" >> "$GITHUB_OUTPUT"
+              echo "replay=model-verdict-low.json" >> "$GITHUB_OUTPUT" ;;
+            demo/vat-change)
+              echo "log=failed-ci-vat.log" >> "$GITHUB_OUTPUT"
+              echo "replay=model-verdict-vat.json" >> "$GITHUB_OUTPUT" ;;
+            *)
+              echo "skip=true" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Get the PR diff
+        if: steps.scn.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr diff "$PR_NUMBER" --patch > pr.diff
+
+      - name: Triage (offline replay; read-only)
+        if: steps.scn.outputs.skip != 'true'
+        env:
+          LOG: ${{ steps.scn.outputs.log }}
+          REPLAY: ${{ steps.scn.outputs.replay }}
+        run: |
+          node packages/agent-ci-triage/dist/cli.js \
+            --diff pr.diff \
+            --ci-log "examples/$LOG" \
+            --mode review \
+            --replay "packages/agent-ci-triage/fixtures/$REPLAY" \
+            --out agent-out || echo "agent exit: $?"
+
+      - name: Post or update comment + label escalations
+        if: steps.scn.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          MARKER="<!-- ai-ci-triage-demo -->"
+          {
+            echo "$MARKER"
+            echo "_Offline demo — the model verdict is recorded; the policy gate ran for real._"
+            echo
+            cat agent-out/report.md
+          } > body.md
+          ID=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR_NUMBER/comments" \
+            --jq ".[] | select(.body | contains(\"$MARKER\")) | .id" | head -1)
+          if [ -n "$ID" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$ID" -F body=@body.md >/dev/null
+          else
+            gh pr comment "$PR_NUMBER" --body-file body.md
+          fi
+          ACTION=$(jq -r '.final_action' agent-out/verdict.json 2>/dev/null || echo "")
+          if [ "$ACTION" = "escalate" ]; then
+            gh label create needs-human-review --color B60205 \
+              --description "AI triage escalated — a human must decide" 2>/dev/null || true
+            gh pr edit "$PR_NUMBER" --add-label "needs-human-review" || true
+          fi
